@@ -51,6 +51,7 @@ parser.add_option("--config_filename", dest="config_filename",
                   default="config.pickle")
 parser.add_option("--output_weight_path", dest="output_weight_path", help="Output path for weights.", default='./model_frcnn.hdf5')
 parser.add_option("--input_weight_path", dest="input_weight_path", help="Input path for weights. If not specified, will try to load default weights provided by keras.")
+parser.add_option("--elen", help="Length of epochs", default=10)
 
 (options, args) = parser.parse_args()
 
@@ -185,7 +186,7 @@ if not os.path.isdir(log_path):
 callback = TensorBoard(log_path)
 callback.set_model(model_all)
 
-epoch_length = 1000
+epoch_length = int(options.elen)
 num_epochs = int(options.num_epochs)
 iter_num = 0
 train_step = 0
@@ -198,14 +199,14 @@ start_time = time.time()
 best_loss = np.Inf
 
 class_mapping_inv = {v: k for k, v in class_mapping.items()}
-print('Starting training')
+logger.info('Starting training')
 
 # vis = True
 
 for epoch_num in range(num_epochs):
 
     progbar = generic_utils.Progbar(epoch_length)   # keras progress bar 사용
-    print('Epoch {}/{}'.format(epoch_num + 1, num_epochs))
+    logger.success('Epoch {}/{}'.format(epoch_num + 1, num_epochs))
 
     while True:
         # try:
@@ -213,9 +214,9 @@ for epoch_num in range(num_epochs):
         if len(rpn_accuracy_rpn_monitor) == epoch_length and C.verbose:
             mean_overlapping_bboxes = float(sum(rpn_accuracy_rpn_monitor))/len(rpn_accuracy_rpn_monitor)
             rpn_accuracy_rpn_monitor = []
-            print('Average number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(mean_overlapping_bboxes, epoch_length))
+            logger.info('Average number of overlapping bounding boxes from RPN = {} for {} previous iterations'.format(mean_overlapping_bboxes, epoch_length))
             if mean_overlapping_bboxes == 0:
-                print('RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
+                logger.warning('RPN is not producing bounding boxes that overlap the ground truth boxes. Check RPN settings or keep training.')
 
         # data generator에서 X, Y, image 가져오기
         X, Y, img_data = next(data_gen_train)
