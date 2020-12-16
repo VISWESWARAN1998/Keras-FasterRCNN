@@ -19,6 +19,7 @@ from keras_frcnn import losses as losses
 import keras_frcnn.roi_helpers as roi_helpers
 from keras.utils import generic_utils
 from keras.callbacks import TensorBoard
+from loguru import logger
 
 
 # tensorboard 로그 작성 함수
@@ -108,15 +109,15 @@ C.class_mapping = class_mapping
 
 inv_map = {v: k for k, v in class_mapping.items()}
 
-print('Training images per class:')
+logger.info('Training images per class:')
 pprint.pprint(classes_count)
-print('Num classes (including bg) = {}'.format(len(classes_count)))
+logger.info('Num classes (including bg) = {}'.format(len(classes_count)))
 
 config_output_filename = options.config_filename
 
 with open(config_output_filename, 'wb') as config_f:
     pickle.dump(C, config_f)
-    print('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(config_output_filename))
+    logger.success('Config has been written to {}, and can be loaded when testing to ensure correct results'.format(config_output_filename))
 
 random.shuffle(all_imgs)
 
